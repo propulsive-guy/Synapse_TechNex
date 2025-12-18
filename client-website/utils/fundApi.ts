@@ -415,3 +415,102 @@ export async function fetchTopSchemes(): Promise<ProcessedFund[]> {
   console.error('All retry attempts failed:', lastError);
   return [];
 }
+
+// Fetch historical NAV data for candlestick chart
+export async function fetchCandleData(schemeCode: number, period: '1y' | '3y' | '5y' | 'all') {
+  try {
+    console.log(`🕯️ Fetching candle data for scheme ${schemeCode}, period: ${period}`);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    
+    const url = `https://api.mfapi.in/mf/${schemeCode}`;
+    
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'Accept': 'application/json' }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      console.warn(`Candle fetch failed for ${schemeCode}: HTTP ${response.status}`);
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    if (!data?.data || !Array.isArray(data.data)) {
+      console.warn(`No historical data found for scheme ${schemeCode}`);
+      return null;
+    }
+    
+    // Parse NAV data
+    const navData = data.data
+      .map((item: any) => ({
+        date: new Date(item.date),
+        nav: parseFloat(item.nav)
+      }))
+      .sort((a: any, b: any) => a.date.getTime() - b.date.getTime());
+    
+    if (navData.length === 0) {
+      console.warn('No valid NAV data after parsing');
+      return null;
+    }
+    
+    // Calculate how many monthly candles to generate
+    let candleCount = 12;
+    switch (period) {
+      case '1y':
+        candleCount = 12;
+        break;
+      case '3y':
+        candleCount = 36;
+        break;
+      case '5y':
+        candleCount = 60;
+        break;
+      case 'all':
+        candleCount = Math.floor((navData[navData.length - 1].date.getTime() - navData[0].date.getTime()) / (30 * 24 * 60 * 60 * 1000));
+        break;
+    }
+    
+    // Group NAV data into monthly candles
+    const candles: any[] = [];
+    const today = new Date();
+    
+    for (let i = candleCount - 1; i >= 0; i--) {
+      const monthEnd = new Date(today);
+      monthEnd.setMonth(monthEnd.getMonth() - i);
+      monthEnd.setDate(1);
+      
+      const monthStart = new Date(monthEnd);
+      monthStart.setMonth(monthStart.getMonth() - 1);
+      
+      const monthlyData = navData.filter((d: any) => 
+        d.date >= monthStart && d.date < monthEnd
+      );
+      
+      if (monthlyData.length > 0) {
+        const opens = monthlyData.map((d: any) => d.nav);
+        const opens_sorted = [...opens].sort((a, b) => a - b);
+        
+        candles.push({
+          date: monthEnd.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }),
+          open: opens[0],
+          high: Math.max(...opens),
+          low: Math.min(...opens),
+          close: opens[opens.length - 1],
+          timestamp: monthEnd.getTime()
+        });
+      }
+    }
+    
+    console.log(`✓ Generated ${candles.length} candles for scheme ${schemeCode}, period: ${period}`);
+    return candles;
+    
+  } catch (error) {
+    console.error(`Error fetching candle data for ${schemeCode}:`, error);
+    return null;
+  }
+}
