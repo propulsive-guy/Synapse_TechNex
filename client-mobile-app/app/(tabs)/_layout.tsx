@@ -89,7 +89,9 @@ export default function TabLayout() {
         listeners={({ navigation }) => ({
             tabPress: (e) => {
                 e.preventDefault();
-                router.push('/modal');
+                router.push({
+                  pathname: '/fund/advanced-predict',
+                });
             },
         })}
       />
