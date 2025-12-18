@@ -22,6 +22,40 @@ export default function AdvancedPredictScreen() {
     amc_name: 'HDFC Mutual Fund',
     rating: 4.5,
   });
+
+  // Provided lists
+  const CATEGORY_OPTIONS = [
+    'Equity',
+    'Hybrid',
+    'Debt',
+    'Solution Oriented',
+    'Other',
+  ];
+
+  const SUB_CATEGORY_OPTIONS = [
+    'FoFs Domestic', 'Arbitrage Mutual Funds', 'Childrens Funds', 'Dynamic Asset Allocation or Balanced Advantage',
+    'Sectoral / Thematic Mutual Funds', 'Banking and PSU Mutual Funds', 'Corporate Bond Mutual Funds', 'Credit Risk Funds',
+    'Dividend Yield Funds', 'Dynamic Bond', 'Large & Mid Cap Funds', 'Aggressive Hybrid Mutual Funds',
+    'Equity Savings Mutual Funds', 'Flexi Cap Funds', 'Floater Mutual Funds', 'Focused Funds',
+    'Large Cap Mutual Funds', 'FoFs Overseas', 'Gilt Mutual Funds', 'Medium to Long Duration Funds',
+    'Liquid Mutual Funds', 'Low Duration Funds', 'Medium Duration Funds', 'Mid Cap Mutual Funds',
+    'Money Market Funds', 'Index Funds', 'Overnight Mutual Funds', 'Value Funds',
+    'Conservative Hybrid Mutual Funds', 'Retirement Funds', 'Ultra Short Duration Funds', 'Short Duration Funds',
+    'Small Cap Mutual Funds', 'ELSS Mutual Funds', 'Fixed Maturity Plans', 'Multi Asset Allocation Mutual Funds',
+    'Multi Cap Funds', 'Contra Funds'
+  ];
+
+  const AMC_NAME_OPTIONS = [
+    'Aditya Birla Sun Life Mutual Fund', 'Axis Mutual Fund', 'Bandhan Mutual Fund', 'Bank of India Mutual Fund',
+    'Baroda BNP Paribas Mutual Fund', 'Edelweiss Mutual Fund', 'Canara Robeco Mutual Fund', 'DSP Mutual Fund',
+    'Franklin Templeton Mutual Fund', 'HDFC Mutual Fund', 'HSBC Mutual Fund', 'ICICI Prudential Mutual Fund',
+    'IDBI Mutual Fund', 'IIFL Mutual Fund', 'Indiabulls Mutual Fund', 'Invesco Mutual Fund', 'ITI Mutual Fund',
+    'JM Financial Mutual Fund', 'Kotak Mahindra Mutual Fund', 'L&T Mutual Fund', 'LIC Mutual Fund',
+    'Mahindra Manulife Mutual Fund', 'Mirae Asset Mutual Fund', 'Motilal Oswal Mutual Fund', 'Navi Mutual Fund',
+    'Nippon India Mutual Fund', 'PPFAS Mutual Fund', 'PGIM India Mutual Fund', 'Quant Mutual Fund',
+    'Quantum Mutual Fund', 'SBI Mutual Fund', 'Shriram Mutual Fund', 'Sundaram Mutual Fund', 'Tata Mutual Fund',
+    'Taurus Mutual Fund', 'Trust Mutual Fund', 'Union Mutual Fund', 'UTI Mutual Fund', 'WhiteOak Capital Mutual Fund'
+  ];
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,9 +134,9 @@ export default function AdvancedPredictScreen() {
               style={{ color: '#000', backgroundColor: '#fff' }}
               onValueChange={v => setInput(i => ({ ...i, category: v }))}
             >
-              <Picker.Item label="Equity" value="Equity" />
-              <Picker.Item label="Debt" value="Debt" />
-              <Picker.Item label="Hybrid" value="Hybrid" />
+              {CATEGORY_OPTIONS.map(opt => (
+                <Picker.Item key={opt} label={opt} value={opt} />
+              ))}
             </Picker>
           </View>
         </View>
@@ -115,10 +149,9 @@ export default function AdvancedPredictScreen() {
               style={{ color: '#000', backgroundColor: '#fff' }}
               onValueChange={v => setInput(i => ({ ...i, sub_category: v }))}
             >
-              <Picker.Item label="FoFs Domestic" value="FoFs Domestic" />
-              <Picker.Item label="Large Cap" value="Large Cap" />
-              <Picker.Item label="Small Cap" value="Small Cap" />
-              <Picker.Item label="Mid Cap" value="Mid Cap" />
+              {SUB_CATEGORY_OPTIONS.map(opt => (
+                <Picker.Item key={opt} label={opt} value={opt} />
+              ))}
             </Picker>
           </View>
         </View>
@@ -209,10 +242,9 @@ export default function AdvancedPredictScreen() {
               style={{ color: '#000', backgroundColor: '#fff' }}
               onValueChange={v => setInput(i => ({ ...i, amc_name: v }))}
             >
-              <Picker.Item label="HDFC Mutual Fund" value="HDFC Mutual Fund" />
-              <Picker.Item label="SBI Mutual Fund" value="SBI Mutual Fund" />
-              <Picker.Item label="Axis Mutual Fund" value="Axis Mutual Fund" />
-              <Picker.Item label="Nippon India Mutual Fund" value="Nippon India Mutual Fund" />
+              {AMC_NAME_OPTIONS.map(opt => (
+                <Picker.Item key={opt} label={opt} value={opt} />
+              ))}
             </Picker>
           </View>
         </View>
@@ -243,7 +275,7 @@ export default function AdvancedPredictScreen() {
           <Text style={styles.resultValue}>{result.returns_3yr ?? '--'}%</Text>
           <Text style={styles.resultLabel}>5 Year Return:</Text>
           <Text style={styles.resultValue}>{result.returns_5yr ?? '--'}%</Text>
-          <Text style={{ color: '#000', fontSize: 12, marginTop: 8 }}>Raw: {JSON.stringify(result)}</Text>
+          
         </View>
       )}
     </ScrollView>
